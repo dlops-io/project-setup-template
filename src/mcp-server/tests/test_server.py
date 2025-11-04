@@ -1,7 +1,5 @@
 """Tests for MCP server tools and resources."""
 
-import pytest
-
 
 def test_get_model_info():
     """Test get_model_info tool."""
@@ -44,9 +42,7 @@ def test_trigger_model_training():
     from src.server import trigger_model_training
 
     result = trigger_model_training(
-        model_name="test-model",
-        dataset_path="/data/test.csv",
-        epochs=5
+        model_name="test-model", dataset_path="/data/test.csv", epochs=5
     )
 
     assert result["model_name"] == "test-model"
@@ -60,10 +56,7 @@ def test_get_model_metrics():
     """Test get_model_metrics tool."""
     from src.server import get_model_metrics
 
-    result = get_model_metrics(
-        model_name="test-model",
-        metric_type="accuracy"
-    )
+    result = get_model_metrics(model_name="test-model", metric_type="accuracy")
 
     assert result["model_name"] == "test-model"
     assert result["metric_type"] == "accuracy"

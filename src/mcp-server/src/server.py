@@ -3,7 +3,6 @@
 This server provides MCP tools for interacting with the MLOps platform.
 """
 
-import os
 from typing import Any
 
 from fastmcp import FastMCP
@@ -113,8 +112,7 @@ def trigger_model_training(
 def get_model_metrics(
     model_name: str = Field(description="Name of the model"),
     metric_type: str = Field(
-        default="accuracy",
-        description="Type of metric (accuracy, precision, recall, f1)"
+        default="accuracy", description="Type of metric (accuracy, precision, recall, f1)"
     ),
 ) -> dict[str, Any]:
     """Get performance metrics for a specific model.
