@@ -5,48 +5,23 @@ Dedicated service for model serving and inference (alternative to using api-serv
 ## Purpose
 
 This service provides:
+
 - Optimized model serving
 - Fast inference endpoints
 - Model version management
 - A/B testing capabilities
 - Model monitoring
 
-## Implementation Tasks
-
-Students should implement:
-
-1. **Model Loading**
-   - Load models from GCS
-   - Support multiple frameworks
-   - Cache loaded models
-   - Hot-swapping for model updates
-
-2. **Inference Endpoints**
-   - Single prediction endpoint
-   - Batch prediction endpoint
-   - Streaming predictions
-   - Async inference
-
-3. **Model Management**
-   - Support multiple model versions
-   - A/B testing between versions
-   - Canary deployments
-   - Model rollback
-
-4. **Monitoring**
-   - Track prediction latency
-   - Log prediction inputs/outputs
-   - Detect model drift
-   - Alert on anomalies
-
 ## Usage
 
 ### Start the server:
+
 ```bash
 uvicorn serve:app --host 0.0.0.0 --port 8080
 ```
 
 ### Make predictions:
+
 ```bash
 curl -X POST http://localhost:8080/predict \
   -H "Content-Type: application/json" \
@@ -64,14 +39,17 @@ curl -X POST http://localhost:8080/predict \
 ## Deployment Options
 
 ### Local:
+
 ```bash
 docker run -p 8080:8080 mlops-model-deploy
 ```
 
 ### GKE:
+
 Deployed using Pulumi configuration in infrastructure/
 
 ### Vertex AI Endpoints:
+
 Can also deploy to Vertex AI for managed serving
 
 ## Performance Optimization
@@ -85,11 +63,13 @@ Can also deploy to Vertex AI for managed serving
 ## Docker
 
 Build:
+
 ```bash
 docker build -t mlops-model-deploy .
 ```
 
 Run:
+
 ```bash
 docker run -p 8080:8080 mlops-model-deploy
 ```
