@@ -4,8 +4,9 @@ Pytest configuration and shared fixtures for integration tests.
 Students can add common fixtures here that are used across multiple test files.
 """
 
-import pytest
 import os
+
+import pytest
 
 
 @pytest.fixture(scope="session")

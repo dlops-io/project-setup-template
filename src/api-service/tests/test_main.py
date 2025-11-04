@@ -7,7 +7,6 @@ Students should add tests for:
 - Middleware configuration
 """
 
-import pytest
 from fastapi.testclient import TestClient
 from main import app
 

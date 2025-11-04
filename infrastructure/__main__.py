@@ -12,8 +12,6 @@ This module defines the infrastructure for deploying the MLOps project to GCP:
 import pulumi
 import pulumi_gcp as gcp
 from pulumi_kubernetes import Provider
-from pulumi_kubernetes.apps.v1 import Deployment
-from pulumi_kubernetes.core.v1 import Service
 
 # Get configuration
 config = pulumi.Config()
@@ -150,7 +148,9 @@ vertex_ai_binding = gcp.projects.IAMMember(
 # ------------------------------------------------------------------------------
 
 # Get cluster credentials
-k8s_config = pulumi.Output.all(gke_cluster.name, gke_cluster.endpoint, gke_cluster.master_auth).apply(
+k8s_config = pulumi.Output.all(
+    gke_cluster.name, gke_cluster.endpoint, gke_cluster.master_auth
+).apply(
     lambda args: f"""apiVersion: v1
 clusters:
 - cluster:

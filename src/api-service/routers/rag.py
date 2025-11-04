@@ -5,9 +5,8 @@ Handles endpoints for vector search, embeddings, and RAG queries.
 Students will implement vector database operations and RAG pipelines here.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List, Optional
 
 router = APIRouter()
 
@@ -25,7 +24,7 @@ class SearchRequest(BaseModel):
 
     query: str
     top_k: int = 5
-    filter: Optional[dict] = None
+    filter: dict | None = None
 
 
 class RAGRequest(BaseModel):
@@ -81,7 +80,7 @@ async def rag_query(request: RAGRequest):
 
 
 @router.post("/ingest")
-async def ingest_documents(documents: List[dict]):
+async def ingest_documents(documents: list[dict]):
     """
     Ingest documents into vector database.
 

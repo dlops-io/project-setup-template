@@ -16,11 +16,11 @@ help: ## Show this help message
 
 install: ## Install dependencies using uv
 	@echo "$(BLUE)Installing dependencies with uv...$(NC)"
-	uv sync
+	uv pip install ruff black pytest pytest-cov pytest-asyncio
 
 install-dev: ## Install development dependencies
 	@echo "$(BLUE)Installing development dependencies...$(NC)"
-	uv sync --dev
+	uv pip install ruff black pytest pytest-cov pytest-asyncio
 
 up: ## Start all services (databases)
 	@echo "$(BLUE)Starting services...$(NC)"
@@ -51,27 +51,27 @@ ps: ## Show running containers
 
 lint: ## Run linting with ruff
 	@echo "$(BLUE)Running ruff linter...$(NC)"
-	uv run ruff check .
+	uvx ruff check .
 
 lint-fix: ## Run linting and auto-fix issues
 	@echo "$(BLUE)Running ruff with auto-fix...$(NC)"
-	uv run ruff check --fix .
+	uvx ruff check --fix .
 
 format: ## Format code with black
 	@echo "$(BLUE)Formatting code with black...$(NC)"
-	uv run black .
+	uvx black .
 
 format-check: ## Check code formatting without changes
 	@echo "$(BLUE)Checking code formatting...$(NC)"
-	uv run black --check .
+	uvx black --check .
 
 test: ## Run all tests
 	@echo "$(BLUE)Running tests...$(NC)"
-	uv run pytest
+	uv run --no-project pytest
 
 test-cov: ## Run tests with coverage report
 	@echo "$(BLUE)Running tests with coverage...$(NC)"
-	uv run pytest --cov --cov-report=html --cov-report=term
+	uv run --no-project pytest --cov --cov-report=html --cov-report=term
 
 clean: ## Clean up temporary files and caches
 	@echo "$(YELLOW)Cleaning up...$(NC)"

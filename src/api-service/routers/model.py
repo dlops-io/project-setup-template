@@ -5,9 +5,8 @@ Handles endpoints for model inference, management, and deployment.
 Students will implement model serving and prediction endpoints here.
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, File, UploadFile
 from pydantic import BaseModel
-from typing import List, Optional
 
 router = APIRouter()
 
@@ -17,14 +16,14 @@ class PredictionRequest(BaseModel):
     """Request model for model prediction."""
 
     features: dict
-    model_version: Optional[str] = "latest"
+    model_version: str | None = "latest"
 
 
 class BatchPredictionRequest(BaseModel):
     """Request model for batch predictions."""
 
-    items: List[dict]
-    model_version: Optional[str] = "latest"
+    items: list[dict]
+    model_version: str | None = "latest"
 
 
 class ModelInfo(BaseModel):
@@ -33,7 +32,7 @@ class ModelInfo(BaseModel):
     name: str
     version: str
     status: str
-    metrics: Optional[dict] = None
+    metrics: dict | None = None
 
 
 @router.get("/")
@@ -50,7 +49,7 @@ async def list_models():
 
 
 @router.get("/{model_name}")
-async def get_model_info(model_name: str, version: Optional[str] = None):
+async def get_model_info(model_name: str, version: str | None = None):
     """
     Get information about a specific model.
 

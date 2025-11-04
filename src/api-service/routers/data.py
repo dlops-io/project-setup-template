@@ -5,7 +5,7 @@ Handles endpoints for data collection, processing, and management.
 Students will implement data ingestion and transformation endpoints here.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 router = APIRouter()
