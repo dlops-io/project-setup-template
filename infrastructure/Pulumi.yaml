@@ -1,0 +1,13 @@
+name: mlops-infrastructure
+runtime: python
+description: Infrastructure as Code for MLOps project using Pulumi and GCP
+
+config:
+  gcp:project:
+    description: GCP Project ID
+  gcp:region:
+    description: GCP Region
+    default: us-central1
+  gcp:zone:
+    description: GCP Zone
+    default: us-central1-a

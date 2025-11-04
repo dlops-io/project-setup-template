@@ -1,0 +1,15 @@
+[project]
+name = "ml-workflow"
+version = "0.1.0"
+description = "ML pipeline orchestration with Vertex AI"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform>=1.65.0",
+    "google-cloud-storage>=2.18.0",
+    "kfp>=2.8.0",
+    "python-dotenv>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
