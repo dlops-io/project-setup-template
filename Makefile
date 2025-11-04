@@ -14,13 +14,13 @@ help: ## Show this help message
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
 
-install: ## Install dependencies using uv
-	@echo "$(BLUE)Installing dependencies with uv...$(NC)"
-	uv pip install ruff black pytest pytest-cov pytest-asyncio
+install: ## Install API service dependencies
+	@echo "$(BLUE)Installing API service dependencies with uv...$(NC)"
+	cd src/api-service && uv sync --all-extras
 
-install-dev: ## Install development dependencies
+install-dev: ## Install development dependencies (same as install)
 	@echo "$(BLUE)Installing development dependencies...$(NC)"
-	uv pip install ruff black pytest pytest-cov pytest-asyncio
+	cd src/api-service && uv sync --all-extras
 
 up: ## Start all services (databases)
 	@echo "$(BLUE)Starting services...$(NC)"
@@ -65,13 +65,13 @@ format-check: ## Check code formatting without changes
 	@echo "$(BLUE)Checking code formatting...$(NC)"
 	uvx black --check .
 
-test: ## Run all tests
-	@echo "$(BLUE)Running tests...$(NC)"
-	uv run --no-project pytest
+test: ## Run API service tests
+	@echo "$(BLUE)Running API service tests...$(NC)"
+	cd src/api-service && uv run pytest
 
 test-cov: ## Run tests with coverage report
 	@echo "$(BLUE)Running tests with coverage...$(NC)"
-	uv run --no-project pytest --cov --cov-report=html --cov-report=term
+	cd src/api-service && uv run pytest --cov --cov-report=html --cov-report=term
 
 clean: ## Clean up temporary files and caches
 	@echo "$(YELLOW)Cleaning up...$(NC)"
