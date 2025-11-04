@@ -11,33 +11,6 @@ This service handles:
 - Preparing data for model training
 - Generating embeddings for vector database
 
-## Implementation Tasks
-
-Students should implement:
-
-1. **Data Cleaning**
-   - Handle missing values
-   - Remove duplicates
-   - Data type conversions
-   - Outlier detection
-
-2. **Feature Engineering**
-   - Create derived features
-   - Encoding categorical variables
-   - Feature scaling and normalization
-   - Feature selection
-
-3. **Transformations**
-   - Text preprocessing for NLP
-   - Image preprocessing for vision models
-   - Time series transformations
-   - Generate embeddings
-
-4. **Pipeline Management**
-   - Save preprocessing pipelines
-   - Version control for transformations
-   - Reproducible processing
-
 ## Usage
 
 ### Process raw data:
