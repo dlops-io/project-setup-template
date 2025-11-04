@@ -69,11 +69,43 @@ jobs:
           file: ./coverage.xml
           fail_ci_if_error: false
 
-  # Build Docker Images (only on push to main)
-  build:
-    name: Build Docker Images
+  # Detect which services changed
+  detect-changes:
+    name: Detect Changed Services
     runs-on: ubuntu-latest
     needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    outputs:
+      api-service: ${{ steps.filter.outputs.api-service }}
+      data-collector: ${{ steps.filter.outputs.data-collector }}
+      data-processor: ${{ steps.filter.outputs.data-processor }}
+      model-training: ${{ steps.filter.outputs.model-training }}
+      model-deploy: ${{ steps.filter.outputs.model-deploy }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api-service:
+              - 'src/api-service/**'
+            data-collector:
+              - 'src/data-collector/**'
+            data-processor:
+              - 'src/data-processor/**'
+            model-training:
+              - 'src/model-training/**'
+            model-deploy:
+              - 'src/model-deploy/**'
+
+  # Build Docker Images (only for changed services)
+  build:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: detect-changes
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     strategy:
@@ -86,13 +118,52 @@ jobs:
           - model-deploy
 
     steps:
+      - name: Check if service changed
+        id: should-build
+        run: |
+          SERVICE="${{ matrix.service }}"
+          CHANGED="false"
+
+          case "$SERVICE" in
+            "api-service")
+              if [[ "${{ needs.detect-changes.outputs.api-service }}" == "true" ]]; then
+                CHANGED="true"
+              fi
+              ;;
+            "data-collector")
+              if [[ "${{ needs.detect-changes.outputs.data-collector }}" == "true" ]]; then
+                CHANGED="true"
+              fi
+              ;;
+            "data-processor")
+              if [[ "${{ needs.detect-changes.outputs.data-processor }}" == "true" ]]; then
+                CHANGED="true"
+              fi
+              ;;
+            "model-training")
+              if [[ "${{ needs.detect-changes.outputs.model-training }}" == "true" ]]; then
+                CHANGED="true"
+              fi
+              ;;
+            "model-deploy")
+              if [[ "${{ needs.detect-changes.outputs.model-deploy }}" == "true" ]]; then
+                CHANGED="true"
+              fi
+              ;;
+          esac
+
+          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+
       - name: Checkout code
+        if: steps.should-build.outputs.changed == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
+        if: steps.should-build.outputs.changed == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
+        if: steps.should-build.outputs.changed == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./src/${{ matrix.service }}
