@@ -74,6 +74,33 @@ services:
       retries: 3
       start_period: 40s
 
+  # MCP Server
+  mcp-server:
+    build:
+      context: ./src/mcp-server
+      dockerfile: Dockerfile
+    container_name: mlops-mcp-server
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - MCP_PORT=8080
+      - API_SERVICE_URL=http://api-service:8000
+    ports:
+      - "${MCP_PORT:-8080}:8080"
+    depends_on:
+      - api-service
+    volumes:
+      - ./src/mcp-server:/app
+    networks:
+      - mlops-network
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python.*server.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 volumes:
   postgres_data:
     driver: local

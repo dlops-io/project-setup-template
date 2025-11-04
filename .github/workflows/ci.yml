@@ -81,6 +81,7 @@ jobs:
       data-processor: ${{ steps.filter.outputs.data-processor }}
       model-training: ${{ steps.filter.outputs.model-training }}
       model-deploy: ${{ steps.filter.outputs.model-deploy }}
+      mcp-server: ${{ steps.filter.outputs.mcp-server }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -100,6 +101,8 @@ jobs:
               - 'src/model-training/**'
             model-deploy:
               - 'src/model-deploy/**'
+            mcp-server:
+              - 'src/mcp-server/**'
 
   # Build Docker Images (only for changed services)
   build:
@@ -116,6 +119,7 @@ jobs:
           - data-processor
           - model-training
           - model-deploy
+          - mcp-server
 
     steps:
       - name: Check if service changed
@@ -147,6 +151,11 @@ jobs:
               ;;
             "model-deploy")
               if [[ "${{ needs.detect-changes.outputs.model-deploy }}" == "true" ]]; then
+                CHANGED="true"
+              fi
+              ;;
+            "mcp-server")
+              if [[ "${{ needs.detect-changes.outputs.mcp-server }}" == "true" ]]; then
                 CHANGED="true"
               fi
               ;;
