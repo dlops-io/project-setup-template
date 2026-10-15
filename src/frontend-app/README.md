@@ -68,7 +68,7 @@ Students should implement:
 ## Project Structure
 
 ```
-frontend-react/
+frontend-app/
 ├── public/
 │   └── index.html
 ├── src/
@@ -115,12 +115,12 @@ async function predict(features) {
 
 Build:
 ```bash
-docker build -t mlops-frontend-react .
+docker build -t mlops-frontend-app .
 ```
 
 Run:
 ```bash
-docker run -p 3000:80 mlops-frontend-react
+docker run -p 3000:80 mlops-frontend-app
 ```
 
 ## Deployment

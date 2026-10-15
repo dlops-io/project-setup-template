@@ -46,7 +46,7 @@ docker run -p 8080:8080 mlops-model-deploy
 
 ### GKE:
 
-Deployed using Pulumi configuration in infrastructure/
+Deployed using Pulumi configuration in `src/deployment/`
 
 ### Vertex AI Endpoints:
 

@@ -44,7 +44,7 @@ uv sync
 
 2. Start databases (from project root):
 ```bash
-make up
+docker compose up -d postgres chromadb
 ```
 
 3. Run the API service:
@@ -142,7 +142,7 @@ Key variables:
 
 ## Deployment
 
-This service is deployed to GKE using Pulumi. See `infrastructure/` directory for deployment configuration.
+This service is deployed to GKE using Pulumi. See `src/deployment/` for deployment configuration.
 
 ## Best Practices
 
