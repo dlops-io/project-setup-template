@@ -1,0 +1,13 @@
+[project]
+name = "mlops-app-model-deploy"
+version = "0.1.0"
+description = "Model deploy: registers the trained model, serves it from a Vertex AI endpoint"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "google-cloud-aiplatform>=2.7.0",
+]
+
+# A command-line tool, not a library: install the dependencies only, never build a wheel of this project.
+[tool.uv]
+package = false
+environments = ["sys_platform == 'linux'"]
