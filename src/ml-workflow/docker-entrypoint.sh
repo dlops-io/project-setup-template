@@ -29,6 +29,8 @@ The following commands are available:
         Create the Artifact Registry repository for the step images (once)
     ./scripts/build-push.sh data-processor
         Build a step image for Vertex AI (linux/amd64) and push it to Artifact Registry
+    ./scripts/upload-trainer.sh
+        Package src/model-training/package and upload it for the Model Training step
     python cli.py --data-processor | --model-training | --model-deploy
         Submit one step as its own pipeline
     python cli.py --pipeline

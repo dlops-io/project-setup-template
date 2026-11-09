@@ -84,33 +84,47 @@ def model_deploy(
     """Uploads the trained model to the Model Registry, and deploys it to an endpoint if asked.
 
     An endpoint keeps a machine running, and billed, until you undeploy it: deploy_endpoint is
-    False unless you set it.
+    False unless you set it. src/model-deploy does the same by hand (--upload, --deploy), and
+    --predict and --cleanup the endpoint this makes: keep the names here and there the same.
     """
     import google.cloud.aiplatform as aip
 
+    model_name = "mlops-app-model"
+    endpoint_name = "mlops-app-endpoint"
     aip.init(project=project, location=location)
 
+    # A model with this name already registered gets a new version, not a second model
+    existing = aip.Model.list(filter=f'display_name="{model_name}"', order_by="create_time desc")
     model = aip.Model.upload(
-        display_name="mlops-app-model",
+        display_name=model_name,
         artifact_uri=artifact_uri,
-        # A prebuilt serving image for the model's framework:
+        # A prebuilt serving image for the model's framework. Vertex AI only accepts images on its list:
         # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers
-        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-12:latest",
+        serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-15:latest",
+        parent_model=existing[0].resource_name if existing else None,
     )
-    print("Model Registry:", model.resource_name)
+    print(f"Registered {model.resource_name} (version {model.version_id})")
 
     if not deploy_endpoint:
         print("Not deployed to an endpoint (deploy_endpoint=False).")
         return
 
-    endpoint = model.deploy(
-        deployed_model_display_name="mlops-app-model",
-        traffic_split={"0": 100},
-        machine_type="n1-standard-4",
+    # Reuse our endpoint, so deploying again never starts a second machine
+    endpoints = aip.Endpoint.list(filter=f'display_name="{endpoint_name}"')
+    endpoint = endpoints[0] if endpoints else aip.Endpoint.create(display_name=endpoint_name)
+    previously_deployed = endpoint.list_models()
+    model.deploy(
+        endpoint=endpoint,
+        deployed_model_display_name=model_name,
+        traffic_percentage=100,
+        machine_type="n1-standard-2",
         min_replica_count=1,
         max_replica_count=1,
         sync=True,
     )
+    # Older versions get no traffic now, but would keep their machines running
+    for deployed_model in previously_deployed:
+        endpoint.undeploy(deployed_model_id=deployed_model.id)
     print("Endpoint:", endpoint.resource_name)
 
 

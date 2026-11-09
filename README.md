@@ -3,7 +3,7 @@
 A starter layout for ML and agent apps. Every service runs in its own container, and Docker is the only
 thing your laptop needs: no Python or Node.
 
-Three services are ready to run and copy from:
+These are ready to run and copy from:
 
 | Service | Pattern | Runs |
 |---|---|---|
@@ -11,6 +11,8 @@ Three services are ready to run and copy from:
 | `frontend-app` | Web frontend (React + Vite, nginx in production) | Always, reloads when you save |
 | `data-processor` | Job: runs a command and stops | When you ask for it |
 | `ml-workflow` | Tools: compiles and submits Vertex AI pipelines, pushes step images | From its shell |
+| `model-training` | Trainer package, run as a Vertex AI training job | From the pipeline |
+| `model-deploy` | Tools: Model Registry and a Vertex AI endpoint (deploy, predict, clean up) | From its shell |
 
 The other folders are placeholders: build them out by copying the pattern that fits.
 
@@ -25,7 +27,7 @@ The other folders are placeholders: build them out by copying the pattern that f
     ├── data-processor/       # Cleaning, feature engineering, embeddings (the job example)
     ├── data-collector/       # Data ingestion from APIs, files, databases
     ├── model-training/       # The trainer package for Vertex AI training jobs
-    ├── model-deploy/         # Model serving / inference
+    ├── model-deploy/         # Vertex AI endpoint: deploy, predict, clean up
     ├── ml-workflow/          # Vertex AI Pipelines: compile, submit, push step images
     ├── mcp-service/          # MCP server exposing tools to AI agents
     └── deployment/           # Infrastructure as code for GCP
@@ -37,7 +39,7 @@ The other folders are placeholders: build them out by copying the pattern that f
 - A `secrets` folder **next to** this repository (not inside it) for GCP service account keys:
 
 ```
-Academics/
+<your-projects-folder>/
 ├── secrets/
 │   └── ml-workflow.json        # your GCP service account key
 └── <this-repo>/
@@ -90,9 +92,11 @@ cd src/ml-workflow
 ./docker-shell.sh
 ```
 
-Then `python cli.py --sample` to check your GCP setup, `./scripts/build-push.sh data-processor` to
-publish the step image, and `python cli.py --pipeline`. See [src/ml-workflow](src/ml-workflow/README.md)
-for the one-time setup (service account roles, buckets, Artifact Registry).
+Then `python cli.py --sample` to check your GCP setup, `./scripts/build-push.sh data-processor` and
+`./scripts/upload-trainer.sh` to publish the steps, and `python cli.py --pipeline`. The pipeline
+registers the trained model; `src/model-deploy` puts it behind an endpoint and asks it for predictions.
+See [src/ml-workflow](src/ml-workflow/README.md) for the one-time setup (service account roles,
+buckets, Artifact Registry).
 
 ## Working in a container
 
@@ -123,6 +127,9 @@ Each service is self-contained and follows the files of the pattern it uses:
 | `.dockerignore` | What stays out of the image | What stays out of the image |
 | `pyproject.toml` + `uv.lock` / `package.json` + `package-lock.json` | Dependencies. Commit the lockfile. | Dependencies. Commit the lockfile. |
 | `tests/` | Tests | Tests, when you add them |
+
+`ml-workflow` and `model-deploy` follow the job pattern too: one image, a shell without arguments,
+`python <args>` with them.
 
 ### Dependencies
 

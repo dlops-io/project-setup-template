@@ -111,6 +111,10 @@ def main():
     command.add_argument("--cleanup", action="store_true", help="Undeploy and delete the endpoint")
     args = parser.parse_args()
 
+    key = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if key and not os.path.exists(key):
+        sys.exit(f"No service account key at {key}: put it in the secrets folder next to the repository")
+
     # Imported here, so --help is quick and needs no settings
     from google.cloud import aiplatform
 

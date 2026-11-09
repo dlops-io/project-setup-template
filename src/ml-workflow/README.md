@@ -10,7 +10,7 @@ and pushes the step images. It never runs as a pipeline step itself.
 |---|---|---|
 | Data Processor | Container component | Our `data-processor` image from Artifact Registry, with `args: ["cli.py", "--process"]` |
 | Model Training | Lightweight component | A Vertex AI training job running the trainer package from `GCS_PACKAGE_URI` (see `../model-training`) |
-| Model Deploy | Lightweight component | Uploads the trained model to the Model Registry; to an endpoint only with `deploy_endpoint=True` |
+| Model Deploy | Lightweight component | Registers the trained model in the Model Registry, as a new version; deploys it to `mlops-app-endpoint` only with `deploy_endpoint=True` (or use `../model-deploy`) |
 
 A container component runs one of our images, so Vertex AI must be able to pull it: build it for
 `linux/amd64` and push it to Artifact Registry with `scripts/build-push.sh` after every change. Its
@@ -38,6 +38,7 @@ entrypoint gets the arguments, exactly as `./docker-shell.sh cli.py --process` d
 | `python cli.py --sample` | Submit the sample pipeline. It uses no images of our own, so it checks the project, bucket and service account first |
 | `./scripts/create-registry.sh` | Create the Artifact Registry repository (once) |
 | `./scripts/build-push.sh data-processor` | Build a step image for `linux/amd64` and push it |
+| `./scripts/upload-trainer.sh` | Package `../model-training/package` and upload it to `GCS_PACKAGE_URI` |
 | `python cli.py --data-processor` | Submit one step as its own pipeline (also `--model-training`, `--model-deploy`) |
 | `python cli.py --pipeline` | Submit the whole pipeline |
 | `... --compile-only` | Write `compiled/<name>.yaml` and submit nothing. Needs no GCP: use it to check a pipeline |
@@ -58,6 +59,7 @@ Each submit prints a console link to follow the run. A command can also run with
 | `settings.py` | Every setting, from the environment; also the image names `build-push.sh` uses |
 | `scripts/build-push.sh` | Builds `src/<service>` for Vertex AI and pushes it to Artifact Registry |
 | `scripts/create-registry.sh` | Creates the Artifact Registry repository |
+| `scripts/upload-trainer.sh` | Packages the trainer and uploads it for the Model Training step |
 | `Dockerfile` | Python, `kfp` and the Vertex AI SDK, the gcloud CLI and the Docker CLI |
 | `docker-entrypoint.sh` | Logs gcloud in with the key; with arguments runs `python <args>`, otherwise opens a shell |
 | `docker-shell.sh` | Builds and starts the container, with the code, `../secrets`, the other services and Docker |
@@ -76,4 +78,4 @@ this container.
 ## Costs
 
 Pipeline steps and training jobs are billed while they run. An endpoint is billed until you undeploy
-it: delete endpoints in the console (Vertex AI > Online prediction > Endpoints) when you are done.
+it: `python cli.py --cleanup` in `../model-deploy` deletes it.

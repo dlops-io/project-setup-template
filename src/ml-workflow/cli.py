@@ -7,6 +7,8 @@
 """
 
 import argparse
+import os
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -41,6 +43,10 @@ def compile_pipeline(name: str) -> Path:
 
 
 def submit(name: str, path: Path):
+    key = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if key and not os.path.exists(key):
+        sys.exit(f"No service account key at {key}: add it, or use --compile-only")
+
     import google.cloud.aiplatform as aip
 
     import settings

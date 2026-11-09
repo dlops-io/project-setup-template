@@ -2,41 +2,45 @@
 
 Trains and evaluates models on Vertex AI, and saves the trained model to GCS.
 
-Training runs as a **Vertex AI training job**: a prebuilt framework image (TensorFlow, PyTorch,
-scikit-learn) runs your trainer package on a machine you choose, with a GPU if you need one. The
-pipeline's Model Training step starts the job (`model_training` in `../ml-workflow/components.py`).
+Training runs as a **Vertex AI training job**: a prebuilt framework image (here TensorFlow 2.17) runs
+the trainer package in `package/` on a machine you choose, with a GPU if you need one. The pipeline's
+Model Training step starts the job (`model_training` in `../ml-workflow/components.py`).
 
-## What the pipeline expects
-
-A Python package with a `trainer.task` module:
+## The trainer package
 
 ```
-src/model-training/
-└── package/
-    ├── setup.py          # name, version, install_requires (the packages the prebuilt image lacks)
-    └── trainer/
-        ├── __init__.py
-        └── task.py       # parses --epochs and --batch_size, trains, saves the model
+package/
+├── setup.py          # the packages the prebuilt image lacks (TensorFlow is already in it)
+└── trainer/
+    ├── __init__.py
+    └── task.py       # parses --epochs and --batch_size, trains, saves the model
 ```
 
-- `task.py` gets `--epochs=<n>` and `--batch_size=<n>` (set in `../ml-workflow/components.py`).
+The skeleton in `task.py` trains a tiny model on made-up data, so the whole path works before you have
+your own model: train, upload to the Model Registry, deploy, predict. Replace `load_data()` and
+`build_model()` with yours. Keep these, which the other steps rely on:
+
 - It saves the model to the folder in the `AIP_MODEL_DIR` environment variable. Vertex AI sets it to
-  `gs://<GCS_BUCKET_NAME>/training/model`, which is where the Model Deploy step looks.
-- The prebuilt image is `container_uri` in `model_training()`: pick one with your framework and version
-  from https://cloud.google.com/vertex-ai/docs/training/pre-built-containers.
+  `gs://<GCS_BUCKET_NAME>/training/model`, which is where Model Deploy looks.
+- It saves a SavedModel with a `serving_default` signature (`export()`), which the prebuilt serving
+  image needs. The argument name of `serve()` is the key in each prediction request:
+  `{"features": [...]}` here, and `SAMPLE_INSTANCES` in `../model-deploy/cli.py` sends that.
+- It gets `--epochs=<n>` and `--batch_size=<n>`, set in `../ml-workflow/components.py`.
+- Another framework or version: change `container_uri` in `model_training()` to a prebuilt training
+  image for it, and the serving image in `../model-deploy/cli.py` to match:
+  https://cloud.google.com/vertex-ai/docs/training/pre-built-containers
 
-## Upload the package
+## Upload and run it
 
-From the workflow shell (`../ml-workflow/docker-shell.sh`), which has gcloud and sees this folder at
-`/src/model-training`:
+From the workflow shell (`../ml-workflow/docker-shell.sh`):
 
 ```bash
-tar czf /tmp/mlops-app-trainer.tar.gz -C /src/model-training package
+./scripts/upload-trainer.sh
 ```
 
 ```bash
-gcloud storage cp /tmp/mlops-app-trainer.tar.gz "$GCS_PACKAGE_URI/mlops-app-trainer.tar.gz"
+python cli.py --model-training
 ```
 
-Then `python cli.py --model-training` runs it on its own, or `python cli.py --pipeline` after the data
-step. Upload again after every change you want the pipeline to use.
+Upload again after every change you want the pipeline to use. Make the archive with the script, not
+with `tar` on a Mac: macOS adds hidden `._*` files to it, and then pip cannot find `setup.py`.
