@@ -10,6 +10,7 @@ Three services are ready to run and copy from:
 | `api-service` | Web service (FastAPI) | Always, reloads when you save |
 | `frontend-app` | Web frontend (React + Vite, nginx in production) | Always, reloads when you save |
 | `data-processor` | Job: runs a command and stops | When you ask for it |
+| `ml-workflow` | Tools: compiles and submits Vertex AI pipelines, pushes step images | From its shell |
 
 The other folders are placeholders: build them out by copying the pattern that fits.
 
@@ -23,9 +24,9 @@ The other folders are placeholders: build them out by copying the pattern that f
     ├── frontend-app/         # Web UI
     ├── data-processor/       # Cleaning, feature engineering, embeddings (the job example)
     ├── data-collector/       # Data ingestion from APIs, files, databases
-    ├── model-training/       # Training jobs (local or Vertex AI)
+    ├── model-training/       # The trainer package for Vertex AI training jobs
     ├── model-deploy/         # Model serving / inference
-    ├── ml-workflow/          # Pipeline orchestration (Vertex AI Pipelines)
+    ├── ml-workflow/          # Vertex AI Pipelines: compile, submit, push step images
     ├── mcp-service/          # MCP server exposing tools to AI agents
     └── deployment/           # Infrastructure as code for GCP
 ```
@@ -76,6 +77,22 @@ docker compose run --rm data-processor cli.py --check
 ```
 
 Stop everything with Ctrl-C, then `docker compose down`. Add `-v` to delete the database volumes too.
+
+## Running a pipeline
+
+The steps also run in the cloud, as a Vertex AI pipeline. From the workflow shell:
+
+```bash
+cd src/ml-workflow
+```
+
+```bash
+./docker-shell.sh
+```
+
+Then `python cli.py --sample` to check your GCP setup, `./scripts/build-push.sh data-processor` to
+publish the step image, and `python cli.py --pipeline`. See [src/ml-workflow](src/ml-workflow/README.md)
+for the one-time setup (service account roles, buckets, Artifact Registry).
 
 ## Working in a container
 

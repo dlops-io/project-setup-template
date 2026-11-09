@@ -32,7 +32,10 @@ As a job, with the same image:
 docker compose run --rm data-processor cli.py --process
 ```
 
-On a cluster, a Kubernetes Job or a Vertex AI pipeline step runs it with `args: ["cli.py", "--process"]`.
+On a cluster, a Kubernetes Job or a Vertex AI pipeline step runs it with `args: ["cli.py", "--process"]`:
+see `data_processor()` in [`../ml-workflow/components.py`](../ml-workflow/components.py). Vertex AI pulls the
+image from Artifact Registry, so push it after every change with `./scripts/build-push.sh data-processor`
+in the workflow shell. Give each argument its own list item: `["--bucket", name]`, never `"--bucket name"`.
 
 ## Files
 

@@ -1,0 +1,14 @@
+[project]
+name = "mlops-app-ml-workflow"
+version = "0.1.0"
+description = "ML workflow: defines the Vertex AI pipelines, compiles them and submits them"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "google-cloud-aiplatform>=2.7.0",
+    "kfp>=2.18.0",
+]
+
+# A command-line tool, not a library: install the dependencies only, never build a wheel of this project.
+[tool.uv]
+package = false
+environments = ["sys_platform == 'linux'"]

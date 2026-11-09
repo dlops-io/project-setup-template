@@ -63,6 +63,9 @@ mlruns/
 # Data written by containers in development
 docker-volumes/
 
+# Compiled pipelines: cli.py writes them on every run
+src/ml-workflow/compiled/
+
 # Logs
 *.log
 logs/

@@ -13,24 +13,24 @@ In a shell, from this folder:
 ./docker-shell.sh
 ```
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Run the dev server: http://localhost:3000 |
-| `npm run check` | Lint, format check and production build |
-| `npm run format` | Format the code with Prettier |
-| `npm install <package>` | Add a dependency |
+| Command                 | What it does                              |
+| ----------------------- | ----------------------------------------- |
+| `npm run dev`           | Run the dev server: http://localhost:3000 |
+| `npm run check`         | Lint, format check and production build   |
+| `npm run format`        | Format the code with Prettier             |
+| `npm install <package>` | Add a dependency                          |
 
 ## Files
 
-| File | What it does |
-|---|---|
-| `src/App.jsx` | The page: replace it with your app |
-| `vite.config.js` | In development, forwards `/api` to `http://api-service:9000` |
-| `nginx.conf.template` | In production, serves the built files and forwards `/api` to `API_URL` |
-| `Dockerfile` | Production image: builds with Vite, then nginx serves `dist/` |
-| `Dockerfile.dev` | Development image: Node; the code is mounted, `node_modules` is a named volume |
-| `docker-entrypoint.dev.sh` | Installs dependencies; with arguments runs them, otherwise opens a shell |
-| `docker-shell.sh` | Shell in the running container, or builds and starts one |
+| File                       | What it does                                                                   |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| `src/App.jsx`              | The page: replace it with your app                                             |
+| `vite.config.js`           | In development, forwards `/api` to `http://api-service:9000`                   |
+| `nginx.conf.template`      | In production, serves the built files and forwards `/api` to `API_URL`         |
+| `Dockerfile`               | Production image: builds with Vite, then nginx serves `dist/`                  |
+| `Dockerfile.dev`           | Development image: Node; the code is mounted, `node_modules` is a named volume |
+| `docker-entrypoint.dev.sh` | Installs dependencies; with arguments runs them, otherwise opens a shell       |
+| `docker-shell.sh`          | Shell in the running container, or builds and starts one                       |
 
 ## Production image
 
