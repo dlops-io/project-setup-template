@@ -4,41 +4,19 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-MANIFEST
-*.manifest
-*.spec
-pip-log.txt
-pip-delete-this-directory.txt
+.eggs/
+build/
+dist/
+wheels/
 
-# Virtual Environments
-.env
+# Virtual environments (uv.lock is NOT ignored: commit it, the Dockerfiles need it)
 .venv
-env/
 venv/
+env/
 ENV/
-env.bak/
-venv.bak/
 .python-version
-
-# uv
-.uv/
-uv.lock
 
 # IDEs
 .vscode/
@@ -46,11 +24,9 @@ uv.lock
 *.swp
 *.swo
 *~
-.DS_Store
 
-# Jupyter Notebook
+# Jupyter Notebook (notebooks themselves can be committed)
 .ipynb_checkpoints
-*.ipynb
 
 # Environment variables
 .env
@@ -58,26 +34,20 @@ uv.lock
 .env.*.local
 *.env
 
-# Secrets and credentials
+# Secrets and credentials: keep them in ../secrets, outside this repository
 secrets/
-*.json
-!package.json
-!package-lock.json
-!tsconfig.json
+service-account*.json
+credentials*.json
 *.pem
 *.key
 *.crt
-service-account*.json
-credentials*.json
 
-# Database
+# Database files
 *.db
 *.sqlite
 *.sqlite3
-postgres-data/
-pgdata/
 
-# ML & Data
+# ML artifacts: keep data and models in GCS, not Git
 *.h5
 *.pkl
 *.pickle
@@ -86,12 +56,12 @@ pgdata/
 *.pth
 *.ckpt
 *.safetensors
-data/
-datasets/
-models/
 checkpoints/
 wandb/
 mlruns/
+
+# Data written by containers in development
+docker-volumes/
 
 # Logs
 *.log
@@ -103,24 +73,20 @@ docker-compose.override.yml
 
 # Testing
 .pytest_cache/
+.ruff_cache/
 .coverage
 htmlcov/
-.tox/
-.nox/
 
-# Node (for React frontend)
+# Node (frontend)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnp.*
-.yarn/
-dist/
-build/
+.eslintcache
 
 # Pulumi
-infrastructure/.pulumi/
-infrastructure/Pulumi.*.yaml
+src/deployment/.pulumi/
+src/deployment/Pulumi.*.yaml
 
 # OS
 .DS_Store
