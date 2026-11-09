@@ -1,0 +1,25 @@
+FROM python:3.13-slim-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    PYTHONUNBUFFERED=1 \
+    UV_PROJECT_ENVIRONMENT=/home/app/.venv \
+    UV_LINK_MODE=copy \
+    PATH="/home/app/.venv/bin:$PATH"
+
+RUN pip install --no-cache-dir uv==0.13.6 && \
+    useradd -ms /bin/bash app -d /home/app -u 1000
+
+USER app
+WORKDIR /app
+
+# The uv cache is a named volume (see docker-shell.sh); creating the directory here makes the
+# volume start out owned by `app`, so `uv sync` can write to it.
+RUN mkdir -p /home/app/.cache/uv
+
+# Dependencies go in the image, so a container starts without downloading them.
+# The code is not copied: it comes from the bind-mounted checkout.
+COPY --chown=app:app pyproject.toml uv.lock ./
+RUN uv sync --frozen
+
+ENTRYPOINT ["/bin/bash", "docker-entrypoint.dev.sh"]

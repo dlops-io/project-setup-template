@@ -1,0 +1,31 @@
+[project]
+name = "mlops-app-api"
+version = "0.1.0"
+description = "API service: the HTTP gateway for the app"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi>=0.141.1",
+    "uvicorn>=0.52.4",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "pytest>=8.4.1",
+    "ruff>=0.12.0",
+]
+
+# An application, not a library: install the dependencies only, never build a wheel of this project.
+[tool.uv]
+package = false
+environments = ["sys_platform == 'linux'"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+# Keep pytest's cache off the bind mount in container development.
+cache_dir = "${HOME}/.cache/mlops-app-api/pytest"
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"

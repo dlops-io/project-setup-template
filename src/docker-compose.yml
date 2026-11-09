@@ -1,0 +1,118 @@
+# The local stack in one command, from this folder:
+#   docker compose up --build       build the images and start the databases, the API and the frontend
+#   docker compose down             stop them all (add -v to delete the database volumes too)
+#
+#   browser -> frontend-app -> api-service -> postgres, vector-db
+#
+# The code is mounted, so the API and the frontend reload when you save. To get a shell in one, run its
+# docker-shell.sh: it finds the running container and opens bash in it.
+#
+# Jobs run when you ask for them, not on `up`:
+#   docker compose run --rm data-processor cli.py --check
+
+name: mlops-app # so containers are mlops-app-<service>-1, not src-<service>-1
+networks:
+    default:
+        name: mlops-app-network # the network the docker-shell.sh scripts use
+volumes:
+    postgres-data:
+        name: mlops-app-postgres-data
+    vector-db-data:
+        name: mlops-app-vector-db-data
+    uv-cache:
+        name: mlops-app-uv-cache # the volume api-service/docker-shell.sh uses
+    node_modules:
+        name: mlops-app-frontend-app-node_modules # the volume frontend-app/docker-shell.sh uses
+services:
+    # Relational database. Local development only: these credentials are not secrets.
+    postgres:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_USER: mlops_user
+            POSTGRES_PASSWORD: mlops_password
+            POSTGRES_DB: mlops_db
+        ports:
+            - 5432:5432
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U mlops_user -d mlops_db"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    # Vector database
+    vector-db:
+        image: chromadb/chroma:1.5.9 # use the same version for chromadb-client
+        ports:
+            - 8000:8000
+        volumes:
+            - vector-db-data:/data # where Chroma 1.x keeps its data
+        environment:
+            ANONYMIZED_TELEMETRY: "FALSE"
+
+    # The API: Dockerfile.dev with the code mounted, reloading when you save
+    api-service:
+        build:
+            context: ./api-service
+            dockerfile: Dockerfile.dev
+        image: mlops-app-api-service
+        container_name: mlops-app-api-service # the name api-service/docker-shell.sh looks for
+        command: ["api_server"] # defined in docker-entrypoint.dev.sh
+        ports:
+            - 9000:9000
+        volumes:
+            - ./api-service:/app
+            - ../../secrets:/secrets:ro
+            - uv-cache:/home/app/.cache/uv
+        environment:
+            GCP_PROJECT: your-gcp-project # CHANGE TO YOUR PROJECT ID
+            GOOGLE_APPLICATION_CREDENTIALS: /secrets/ml-workflow.json
+            CHROMADB_HOST: vector-db
+            CHROMADB_PORT: 8000
+            DATABASE_URL: postgresql://mlops_user:mlops_password@postgres:5432/mlops_db
+        depends_on:
+            postgres:
+                condition: service_healthy
+            vector-db:
+                condition: service_started
+
+    # The page: Vite in development, passing /api to api-service
+    frontend-app:
+        build:
+            context: ./frontend-app
+            dockerfile: Dockerfile.dev
+        image: mlops-app-frontend-app
+        container_name: mlops-app-frontend-app # the name frontend-app/docker-shell.sh looks for
+        command: ["npm", "run", "dev"]
+        ports:
+            - 3000:5173
+        volumes:
+            - ./frontend-app:/app
+            - node_modules:/app/node_modules
+        depends_on:
+            - api-service
+
+    # A job: runs a command and stops. Only with `docker compose run` (or `--profile jobs`).
+    data-processor:
+        build: ./data-processor
+        image: mlops-app-data-processor
+        profiles: ["jobs"]
+        command: ["cli.py", "--check"]
+        volumes:
+            - ./data-processor:/app
+            - ../../secrets:/secrets:ro
+        environment:
+            GCP_PROJECT: your-gcp-project # CHANGE TO YOUR PROJECT ID
+            GOOGLE_APPLICATION_CREDENTIALS: /secrets/ml-workflow.json
+            CHROMADB_HOST: vector-db
+            CHROMADB_PORT: 8000
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+        depends_on:
+            postgres:
+                condition: service_healthy
+            vector-db:
+                condition: service_started
+
+    # mcp-service: add it here once src/mcp-service has a Dockerfile (port 8080)
